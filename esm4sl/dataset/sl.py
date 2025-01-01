@@ -23,13 +23,19 @@ class SLDataset(Dataset):
     Each pair of SL genes generates: (cmb_gene_emb, label)
     """
     @configurable
-    def __init__(self, stage: RunningStage, sl_root: Path, test_fold: int, cell_line: str | None) -> None: #  | float, np_ratio: Optional[int] = None
+    def __init__(self, stage: RunningStage, cfg: DictConfig) -> None: # sl_root: Path, test_fold: int, cell_line: str | None | float, np_ratio: Optional[int] = None
         self.stage = stage
-        if stage != RunningStage.TRAINING:  # VALIDATING, TESTING
-            self.df = pd.read_csv(os.path.join(sl_root, f"sl_test_{test_fold}.csv"))
+        # sl_root = cfg.DATASET.SL_ROOT
+        # test_fold = cfg.DATASET.TEST_FOLD
+        cell_line = cfg.DATASET.CELL_LINE
+
+        if stage == RunningStage.TRAINING:  # VALIDATING, TESTING
+            self.df = pd.read_csv(cfg.DATASET.TRAIN_FILE)  #os.path.join(sl_root, f"sl_train_{test_fold}.csv")
+            self.df = self.df.sample(frac=1).reset_index(drop=True)  # shuffle
+        elif stage == RunningStage.VALIDATING:
+            self.df = pd.read_csv(cfg.DATASET.VAL_FILE)  #os.path.join(sl_root, f"sl_test_{test_fold}.csv")
         else:
-            self.df = pd.read_csv(os.path.join(sl_root, f"sl_train_{test_fold}.csv"))
-        self.df = self.df.sample(frac=1).reset_index(drop=True)  # shuffle
+            self.df = pd.read_csv(cfg.DATASET.TEST_FILE)
 
         self.cell_line = cell_line
         if cell_line is not None:
@@ -40,9 +46,10 @@ class SLDataset(Dataset):
     def from_config(cls, cfg: DictConfig, stage: RunningStage) -> dict[str, Any]:
         return {
             "stage": stage,
-            "sl_root": cfg.DATASET.SL_ROOT,
-            "test_fold": cfg.DATASET.TEST_FOLD,
-            "cell_line": cfg.DATASET.CELL_LINE
+            "cfg": cfg,
+            # "sl_root": cfg.DATASET.SL_ROOT,
+            # "test_fold": cfg.DATASET.TEST_FOLD,
+            # "cell_line": cfg.DATASET.CELL_LINE
         }
 
     def __len__(self) -> int:
@@ -59,8 +66,8 @@ class SLDataset(Dataset):
 
     @property
     def sampler(self) -> Sampler | None:
-        return None
-        # return NegSampler(df=self.df, neg_sample_ratio=5) if self.stage == RunningStage.TRAINING and self.pos_neg_ratio() > 5 else None
+        # return None
+        return NegSampler(df=self.df, neg_sample_ratio=5) if self.stage == RunningStage.TRAINING and self.pos_neg_ratio() > 5 else None
 
     @property
     def collate_fn(self) -> Any:

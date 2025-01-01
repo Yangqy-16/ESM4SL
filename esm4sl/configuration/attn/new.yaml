@@ -1,5 +1,5 @@
 SEED: 32656
-OUTPUT_DIR: /home/qingyuyang/ESM4SL/output/esm2/attn/some_cell-line/some_scene/some_fold  # change
+OUTPUT_DIR: /home/qingyuyang/ESM4SL/output/attn/cell-line/scene/fold  # change
 
 DATALOADER:
   BATCH_SIZE: 32
@@ -10,9 +10,11 @@ DATALOADER:
 
 DATASET:
   NAME: SLwholeembDataset
-  SL_ROOT: /home/qingyuyang/ESM4SL/data/SLKB/slbench/some_cell-line/some_scene  # change
-  CELL_LINE: null
-  TEST_FOLD: 0  # generally shouldn't be None, and MUST be in {0, 1, ..., cv_num-1}
+  TRAIN_FILE: /home/qingyuyang/ESM4SL/data/SLKB/slbench/cell-line/scene/sl_train_{fold}.csv  # change
+  VAL_FILE: /home/qingyuyang/ESM4SL/data/SLKB/slbench/cell-line/scene/sl_test_{fold}.csv  # change
+  TEST_FILE: /home/qingyuyang/ESM4SL/data/SLKB/slbench/cell-line/scene/sl_test_{fold}.csv  # change
+  CELL_LINE: null  # or cell-line name
+  # TEST_FOLD: 0  # generally shouldn't be None, and MUST be in {0, 1, ..., cv_num-1}
 
   ESM_ROOT: /home/qingyuyang/ESM4SL/data/SLKB/ESM2_emb  # change
   GENE_SEQ_PATH: null  # only if dataset is raw
@@ -30,6 +32,7 @@ MODEL:
   OUT_CHANNELS: 1
   ACT_LAYER: gelu  # relu
   NORM_LAYER: batchnorm  # layernorm?
+
   KERNEL_SIZE: 3
   EMBED_DIM: 128
   NUM_HEADS: 4
@@ -58,7 +61,7 @@ TRAINER:
     MONITOR: avgmtr    # avgmtr means (auprc + auroc) / 2
     MONITOR_MODE: max
 
-  MAX_EPOCHS: 80        # If profiler is enabled, this will be *automatically* set to 1
+  MAX_EPOCHS: 50        # If profiler is enabled, this will be *automatically* set to 1
   LOG_EVERY_N_STEPS: 1
   ACCUMULATE_GRAD_BATCHES: 1
 

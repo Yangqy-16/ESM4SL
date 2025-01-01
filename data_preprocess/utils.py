@@ -44,8 +44,8 @@ def select_cl_from_slkb(df: pd.DataFrame, cl: str) -> pd.DataFrame:
 
 
 def remove_rows_with_condition(df: pd.DataFrame) -> pd.DataFrame:
-    duplicates = df[df.duplicated(subset=['0', '1'], keep=False)]
-    for _, group in duplicates.groupby(['0', '1']):
+    duplicates = df[df.duplicated(subset=['0', '1', '3'], keep=False)]
+    for _, group in duplicates.groupby(['0', '1', '3']):
         assert len(group['2'].unique()) == len(group), f"Pair ({group.iloc[0]['0']}, {group.iloc[0]['1']}) have duplicate same labels!"
         df.drop(group.index, inplace=True)
     df.reset_index(drop=True, inplace=True)
@@ -294,7 +294,7 @@ def df_gid2uid(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def gid2uid_all(data_path: Path, save_path: Path, fold: int = 5, if_transfer: bool = False, include_test: bool = True) -> None:
+def gid2uid_all(data_path: Path, save_path: Path, fold: int = 5, if_transfer: bool = False) -> None:
     os.makedirs(save_path, exist_ok=True)
 
     for i in range(fold):
@@ -305,11 +305,10 @@ def gid2uid_all(data_path: Path, save_path: Path, fold: int = 5, if_transfer: bo
         assert len(train_df_uid) == len(train_df_gid)
         train_df_uid.to_csv(f'{save_path}/sl_train_{fn_num}.csv', index=False)
 
-        if include_test:
-            test_df_gid = pd.read_csv(f'{data_path}/sl_test_{fn_num}.csv')
-            test_df_uid = df_gid2uid(test_df_gid)
-            assert len(test_df_uid) == len(test_df_gid)
-            test_df_uid.to_csv(f'{save_path}/sl_test_{fn_num}.csv', index=False)
+        test_df_gid = pd.read_csv(f'{data_path}/sl_test_{fn_num}.csv')
+        test_df_uid = df_gid2uid(test_df_gid)
+        assert len(test_df_uid) == len(test_df_gid)
+        test_df_uid.to_csv(f'{save_path}/sl_test_{fn_num}.csv', index=False)
 
 
 def construct_data_npy(data_path: Path, save_path: Path, fold: int = 5, if_transfer: bool = False) -> None:

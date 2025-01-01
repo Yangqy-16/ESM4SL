@@ -23,19 +23,19 @@ class SLembDataset(SLDataset):
     """
 
     @configurable
-    def __init__(self, stage: RunningStage, sl_root: Path, test_fold: int, cell_line: str | None, esm_root: Path) -> None:
-        super().__init__(stage, sl_root, test_fold, cell_line)
-        self.esm_root = esm_root
+    def __init__(self, stage: RunningStage, cfg: DictConfig) -> None:  #sl_root: Path, test_fold: int, cell_line: str | None, esm_root: Path
+        super().__init__(stage, cfg)
+        self.esm_root = cfg.DATASET.ESM_ROOT
 
-    @classmethod
-    def from_config(cls, cfg: DictConfig, stage: RunningStage) -> dict[str, Any]:
-        return {
-            "stage": stage,
-            "sl_root": cfg.DATASET.SL_ROOT,
-            "test_fold": cfg.DATASET.TEST_FOLD,
-            "cell_line": cfg.DATASET.CELL_LINE,
-            "esm_root": cfg.DATASET.ESM_ROOT
-        }
+    # @classmethod
+    # def from_config(cls, cfg: DictConfig, stage: RunningStage) -> dict[str, Any]:
+    #     return {
+    #         "stage": stage,
+    #         "sl_root": cfg.DATASET.SL_ROOT,
+    #         "test_fold": cfg.DATASET.TEST_FOLD,
+    #         "cell_line": cfg.DATASET.CELL_LINE,
+    #         "esm_root": cfg.DATASET.ESM_ROOT
+    #     }
 
     def common_getitem(self, index: int, key: str) -> tuple[torch.Tensor, torch.Tensor, float, int, int] | tuple[torch.Tensor, torch.Tensor, float, int, int, np.ndarray]:
         """

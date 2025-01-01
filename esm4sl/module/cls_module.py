@@ -120,6 +120,7 @@ class ClsModule(pl.LightningModule):
             output_dir = f'{self.cfg.OUTPUT_DIR}/csv_log'
             version_num = len(os.listdir(output_dir)) - 1
             df.to_csv(f'{output_dir}/version_{version_num}/test_logits.csv', index=False)
+            np.save(f'{output_dir}/version_{version_num}/test_metrics.npy', metrics, allow_pickle=True)
 
         self.losses[stage].clear()
         self.logits[stage].clear()
